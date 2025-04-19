@@ -1,0 +1,145 @@
+databaseChangeLog:
+  - changeSet:
+      id: deep2000-demo-2025-04-19-01-Create table banner_catergory
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE TABLE banner_catergory (
+        id  Int,
+        name TEXT,
+        constraint pk_banner_catergory PRIMARY KEY (id)
+        );
+        
+        INSERT INTO banner_catergory (id, name) VALUES
+        (1, 'Формат'),
+        (2, 'Цель'),
+        (3, 'Размещение'),
+        (4, 'Технология');
+      rollback:
+        DROP TABLE IF EXISTS pk_banner_catergory;
+  - changeSet:
+      id: deep2000-demo-2025-04-19-02-Create table banner_types_by_catergory
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE TABLE banner_types_by_catergory (
+        id bigint NOT NULL,
+        catergory_id INT,
+        name character varying(100),
+        CONSTRAINT pk_banner_types_by_catergory PRIMARY KEY (id),
+        CONSTRAINT fk_banner_types_by_catergory_category FOREIGN KEY (catergory_id)
+        REFERENCES public.banner_catergory (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL
+        );
+        
+        INSERT INTO banner_types_by_catergory (id, catergory_id, name) VALUES
+        (1, 1, 'Статические'),
+        (2, 1, 'Анимированные'),
+        (3, 1, 'Видеобаннеры'),
+        (4, 1, 'Интерактивные'),
+        (5, 1, 'Нативные'),
+        (6, 2, 'Трафиковые'),
+        (7, 2, 'Брендовые'),
+        (8, 2, 'Ретаргетинговые'),
+        (9, 2, 'Конверсионные'),
+        (10, 3, 'Веб-сайты'),
+        (11, 3, 'Соцсети'),
+        (12, 3, 'Мобильные приложения'),
+        (13, 3, 'DOOH (уличные экраны)'),
+        (14, 4, 'Программные (RTB)'),
+        (15, 4, 'Push-баннеры'),
+        (16, 4, 'Динамические'),
+        (17, 4, 'Sticky-баннеры');
+
+      rollback:
+        DROP TABLE IF EXISTS banner_types_by_catergory;
+  - changeSet:
+      id: deep2000-demo-2025-04-19-03-Create table service
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE TABLE service (
+        id bigint NOT NULL,
+        name character varying(100),
+        description character varying(4000),
+        old_name character varying(100),
+        cat_format_id INT NOT NULL,
+        cat_goal_id INT NOT NULL,
+        cat_place_id INT NOT NULL,
+        cat_technology_id INT NOT NULL,
+        confirmed BOOLEAN,
+        moderated BOOLEAN,
+        price INT,
+        image oid,
+        CONSTRAINT pk_service PRIMARY KEY (id),
+        CONSTRAINT fk_category_cat_format FOREIGN KEY (cat_format_id)
+        REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL,
+        CONSTRAINT fk_category_cat_goal FOREIGN KEY (cat_goal_id)
+        REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL,
+        CONSTRAINT fk_category_cat_place FOREIGN KEY (cat_place_id)
+        REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL,
+        CONSTRAINT fk_category_cat_technology FOREIGN KEY (cat_technology_id)
+        REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL
+        );
+        
+        INSERT INTO service (id, name,cat_format_id, cat_goal_id, cat_place_id, cat_technology_id, price, confirmed) VALUES
+        (1, 'Услуга 1', 1,  6, 10, 14, 1200, true),
+        (2, 'Услуга 2', 2,  7, 12, 15, 2000, true),
+        (3, 'Услуга 2', 3,  8, 10, 16, 3000, false),
+        (4, 'Услуга 3', 1,  6, 12, 15, 4000, true),
+        (5, 'Услуга 4', 4,  9, 13, 14, 9000, false),
+        (6, 'Услуга 5', 5,  5, 10, 15, 10000, true);
+      rollback:
+        DROP TABLE IF EXISTS service;
+  - changeSet:
+      id: deep2000-demo-2025-04-19-04-Create view  banner_types_by_catergory_view
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE OR REPLACE VIEW public.banner_types_by_catergory_view AS
+          SELECT bt.id,  bt.name, catergory_id, c.name as  catergory_name
+          FROM public.banner_types_by_catergory bt
+          join banner_catergory c on c.id = bt.catergory_id;
+  - changeSet:
+      id: deep2000-demo-2025-04-19-05-Create view  service_view
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE OR REPLACE VIEW public.service_view AS
+          SELECT s.id, s.name, description, old_name,
+          cat_format_id, cat_format.name as cat_format_name,
+          cat_goal_id, cat_goal.name as cat_goal_name,
+          cat_place_id, cat_place.name as cat_place_name,
+          cat_technology_id, cat_technology.name as cat_technology_name,
+          confirmed, moderated, price
+          FROM public.service s
+          LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
+          LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
+          LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
+          LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id;
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-05-Create table  exchange_rate
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE TABLE IF NOT EXISTS public.exchange_rate
+          (
+            id integer NOT NULL,
+            num_code text COLLATE pg_catalog."default",
+            char_code text COLLATE pg_catalog."default",
+            Name text COLLATE pg_catalog."default",
+            value  NUMERIC(9,4),
+            CONSTRAINT pk_exchange_rate PRIMARY KEY (id)
+          );
+  - changeSet:
+      id: deep2000-demo-2025-04-19-05-Create hibernate_sequence
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE SEQUENCE IF NOT EXISTS hibernate_sequence START WITH  1000;
+        ;
+
+

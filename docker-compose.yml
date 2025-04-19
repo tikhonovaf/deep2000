@@ -1,0 +1,27 @@
+version: '1.0'
+services:
+  deep2000:
+    image: arkadytikhonov/deep2000:latest
+    container_name: ${CONTAINER_PREFIX:-}pom-api
+    restart: always
+    entrypoint: ["java","-Dfile.encoding=UTF-8", "-jar", "deep2000.jar"]
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/deep2000
+      SPRING_DATASOURCE_PASSWORD: ADMIN
+      SPRING_DATASOURCE_USERNAME: ADMIN
+    depends_on:
+        - postgres
+
+  postgres:
+    image: postgres:13
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ADMIN
+      POSTGRES_PASSWORD: ADMIN
+      POSTGRES_DB: deep2000
+    ports:
+      - "5432:5432"
+    restart: always
