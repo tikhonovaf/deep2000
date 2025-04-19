@@ -1,0 +1,11 @@
+version: '1.0'
+  postgres:
+    image: postgres:13
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: ADMIN
+      POSTGRES_PASSWORD: ADMIN
+      POSTGRES_DB: deep2000
+    ports:
+      - "5432:5432"
+    restart: always
