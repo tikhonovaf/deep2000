@@ -58,6 +58,7 @@ databaseChangeLog:
       sql:
         CREATE TABLE service (
         id bigint NOT NULL,
+        prev_id bigint,
         name character varying(100),
         description character varying(4000),
         old_name character varying(100),
@@ -70,18 +71,27 @@ databaseChangeLog:
         price INT,
         image oid,
         CONSTRAINT pk_service PRIMARY KEY (id),
+
+        CONSTRAINT fk_service_service FOREIGN KEY (prev_id)
+        REFERENCES public.service (id) MATCH SIMPLE
+        ON UPDATE SET NULL
+        ON DELETE SET NULL,
+
         CONSTRAINT fk_category_cat_format FOREIGN KEY (cat_format_id)
         REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
         ON UPDATE SET NULL
         ON DELETE SET NULL,
+
         CONSTRAINT fk_category_cat_goal FOREIGN KEY (cat_goal_id)
         REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
         ON UPDATE SET NULL
         ON DELETE SET NULL,
+
         CONSTRAINT fk_category_cat_place FOREIGN KEY (cat_place_id)
         REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
         ON UPDATE SET NULL
         ON DELETE SET NULL,
+
         CONSTRAINT fk_category_cat_technology FOREIGN KEY (cat_technology_id)
         REFERENCES public.banner_types_by_catergory (id) MATCH SIMPLE
         ON UPDATE SET NULL
@@ -102,39 +112,41 @@ databaseChangeLog:
       author: Arkadiy.Tikhonov
       sql:
         CREATE OR REPLACE VIEW public.banner_types_by_catergory_view AS
-          SELECT bt.id,  bt.name, catergory_id, c.name as  catergory_name
-          FROM public.banner_types_by_catergory bt
-          join banner_catergory c on c.id = bt.catergory_id;
+        SELECT bt.catergory_id, c.name AS catergory_name, bt.id, bt.name
+        FROM banner_types_by_catergory bt
+        JOIN banner_catergory c ON c.id = bt.catergory_id
+        ORDER BY bt.catergory_id, bt.catergory_id;
+
   - changeSet:
       id: deep2000-demo-2025-04-19-05-Create view  service_view
       author: Arkadiy.Tikhonov
       sql:
         CREATE OR REPLACE VIEW public.service_view AS
-          SELECT s.id, s.name, description, old_name,
-          cat_format_id, cat_format.name as cat_format_name,
-          cat_goal_id, cat_goal.name as cat_goal_name,
-          cat_place_id, cat_place.name as cat_place_name,
-          cat_technology_id, cat_technology.name as cat_technology_name,
-          confirmed, moderated, price
-          FROM public.service s
-          LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
-          LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
-          LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
-          LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id;
+        SELECT s.id, s.name, description, old_name,
+        cat_format_id, cat_format.name as cat_format_name,
+        cat_goal_id, cat_goal.name as cat_goal_name,
+        cat_place_id, cat_place.name as cat_place_name,
+        cat_technology_id, cat_technology.name as cat_technology_name,
+        confirmed, moderated, price
+        FROM public.service s
+        LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
+        LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
+        LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
+        LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id;
 
   - changeSet:
       id: deep2000-demo-2025-04-19-05-Create table  exchange_rate
       author: Arkadiy.Tikhonov
       sql:
         CREATE TABLE IF NOT EXISTS public.exchange_rate
-          (
-            id integer NOT NULL,
-            num_code text COLLATE pg_catalog."default",
-            char_code text COLLATE pg_catalog."default",
-            Name text COLLATE pg_catalog."default",
-            value  NUMERIC(9,4),
-            CONSTRAINT pk_exchange_rate PRIMARY KEY (id)
-          );
+        (
+        id integer NOT NULL,
+        num_code text COLLATE pg_catalog."default",
+        char_code text COLLATE pg_catalog."default",
+        Name text COLLATE pg_catalog."default",
+        value  NUMERIC(9,4),
+        CONSTRAINT pk_exchange_rate PRIMARY KEY (id)
+        );
   - changeSet:
       id: deep2000-demo-2025-04-19-05-Create hibernate_sequence
       author: Arkadiy.Tikhonov
@@ -142,4 +154,58 @@ databaseChangeLog:
         CREATE SEQUENCE IF NOT EXISTS hibernate_sequence START WITH  1000;
         ;
 
+  - changeSet:
+      id: deep2000-demo-2025-04-19-05-Create view  service_for_customer_view
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE OR REPLACE VIEW public.service_for_customer_view AS
+        SELECT s.id, s.name, description, old_name,
+        cat_format_id, cat_format.name as cat_format_name,
+        cat_goal_id, cat_goal.name as cat_goal_name,
+        cat_place_id, cat_place.name as cat_place_name,
+        cat_technology_id, cat_technology.name as cat_technology_name,
+        confirmed, moderated, price
+        FROM public.service s
+        LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
+        LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
+        LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
+        LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id
+        WHERE confirmed = true;
 
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-05-Create view  service_for_moderator_view
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE OR REPLACE VIEW public.service_for_moderator_view AS
+        SELECT s.id, s.name, description, old_name,
+        cat_format_id, cat_format.name as cat_format_name,
+        cat_goal_id, cat_goal.name as cat_goal_name,
+        cat_place_id, cat_place.name as cat_place_name,
+        cat_technology_id, cat_technology.name as cat_technology_name,
+        confirmed, moderated, price
+        FROM public.service s
+        LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
+        LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
+        LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
+        LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id
+        WHERE confirmed = false
+        AND NOT EXISTS (SELECT ID FROM service s1 WHERE s1.prev_id = s.id);
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-06-Create view  service_for_support_view
+      author: Arkadiy.Tikhonov
+      sql:
+        CREATE OR REPLACE VIEW public.service_for_support_view AS
+        SELECT s.id, s.name, description, old_name,
+        cat_format_id, cat_format.name as cat_format_name,
+        cat_goal_id, cat_goal.name as cat_goal_name,
+        cat_place_id, cat_place.name as cat_place_name,
+        cat_technology_id, cat_technology.name as cat_technology_name,
+        confirmed, moderated, price
+        FROM public.service s
+        LEFT JOIN banner_types_by_catergory cat_format on cat_format.id = cat_format_id
+        LEFT JOIN banner_types_by_catergory cat_goal on cat_goal.id = cat_goal_id
+        LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
+        LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id
+        WHERE NOT EXISTS (SELECT ID FROM service s1 WHERE s1.prev_id = s.id);

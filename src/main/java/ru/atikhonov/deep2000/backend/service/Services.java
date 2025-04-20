@@ -9,10 +9,13 @@ import ru.atikhonov.deep2000.backend.dto.ServiceViewDto;
 import ru.atikhonov.deep2000.backend.exception.ValidateException;
 import ru.atikhonov.deep2000.backend.mapper.ServiceMapper;
 import ru.atikhonov.deep2000.backend.model.BannerService;
-import ru.atikhonov.deep2000.backend.repository.ServiceRepository;
-import ru.atikhonov.deep2000.backend.repository.ServiceViewRepository;
+import ru.atikhonov.deep2000.backend.model.ServiceForCustomerView;
+import ru.atikhonov.deep2000.backend.model.ServiceForModeratorView;
+import ru.atikhonov.deep2000.backend.model.ServiceForSupportView;
+import ru.atikhonov.deep2000.backend.repository.*;
 import ru.atikhonov.deep2000.backend.util.CoreUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +32,12 @@ public class Services implements ServicesApiDelegate {
 
     private final ServiceRepository serviceRepository;
     private final ServiceViewRepository serviceViewRepository;
+    private final ServiceForCustomerViewRepository serviceForCustomerViewRepository;
+    private final ServiceForModeratorViewRepository serviceForModeratorViewRepository;
+    private final ServiceForSupportViewRepository serviceForSupportViewRepository;
+
+
+
     private final ServiceMapper serviceMapper;
 //    private final ApplicationContext applicationContext;
 
@@ -36,7 +45,7 @@ public class Services implements ServicesApiDelegate {
     /**
      * POST /demo2000/Services : Добавление сервиса
      *
-     * @param serviceInDto 
+     * @param serviceInDto
      * @return Пустой ответ (status code 200)
      */
     @Override
@@ -94,17 +103,37 @@ public class Services implements ServicesApiDelegate {
 
     /**
      * GET /demo2000/Services : Выборка списка сервисов
+     * Тип запроса (C - customer, M - moderator, S - support)
      *
      * @return Список сервисов (status code 200)
      */
     @Override
-    public ResponseEntity<List<ServiceViewDto>> getServices() {
-        List<ServiceViewDto> result =
-                serviceViewRepository
-                        .findAll()
-                        .stream()
-                        .map(v -> serviceMapper.fromViewToDto(v))
-                        .collect(Collectors.toList());
+    public ResponseEntity<List<ServiceViewDto>> getServices(String requestType) {
+        List<ServiceViewDto> result = new ArrayList<>();
+        if (requestType.equals("C")) {
+            result =
+                    serviceForCustomerViewRepository
+                            .findAll()
+                            .stream()
+                            .map(v -> serviceMapper.fromViewToDto(v))
+                            .collect(Collectors.toList());
+
+        } else if (requestType.equals("M")) {
+            result =
+                    serviceForModeratorViewRepository
+                            .findAll()
+                            .stream()
+                            .map(v -> serviceMapper.fromViewToDto(v))
+                            .collect(Collectors.toList());
+
+        } else if (requestType.equals("S")) {
+            result =
+                    serviceForSupportViewRepository
+                            .findAll()
+                            .stream()
+                            .map(v -> serviceMapper.fromViewToDto(v))
+                            .collect(Collectors.toList());
+        }
         return ResponseEntity.ok(result);
     }
 

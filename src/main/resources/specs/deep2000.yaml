@@ -44,12 +44,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/bannerCategoryDtos"
 
-  /services:
+  /services/info/{requestType}:
     get:
       summary: Выборка списка сервисов
       operationId: getServices
       tags:
         - SERVICES
+      parameters:
+        - name: requestType
+          description: Тип запроса (C - customer, M - moderator, S - support)
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         200:
           description: Список сервисов
@@ -57,6 +64,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/serviceViewDtos"
+
+  /services:
     post:
       summary: Добавление сервиса
       operationId: addService

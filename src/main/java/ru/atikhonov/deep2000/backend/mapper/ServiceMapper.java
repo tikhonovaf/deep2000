@@ -30,7 +30,7 @@ public class ServiceMapper {
      * @param view - строка из entity
      * @return Данные в структуре DTO
      */
-    public ServiceViewDto fromViewToDto(ServiceView view) {
+    public ServiceViewDto fromViewToDto(Object view) {
         ServiceViewDto result = new ServiceViewDto();
         CoreUtil.patch(view, result);
         return result;
