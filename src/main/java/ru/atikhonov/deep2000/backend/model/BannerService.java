@@ -23,6 +23,8 @@ public class BannerService {
     @GeneratedValue
     Long id;
 
+    Long prevId;
+
     /**
      * Наименование
      */
@@ -57,7 +59,7 @@ public class BannerService {
     Integer price;
 
     @Lob
-    private byte[] image;;
+    private byte[] image;
 
 
 

@@ -139,6 +139,78 @@ paths:
         200:
           description: Пустой ответ
 
+  /services/confirmation/{serviceId}:
+    patch:
+      summary: Подтверждение сервиса
+      operationId: confirmationService
+      tags:
+        - SERVICES
+      parameters:
+        - name: serviceId
+          description: ИД сервиса
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              $ref: "#/components/schemas/serviceInDto"
+      responses:
+        200:
+          description: Пустое значение
+
+  /services/image/upload/{serviceId}:
+    post:
+      tags:
+        - SERVICES
+      operationId: uploadImage
+      summary: Загрузка файла
+      parameters:
+        - name: serviceId
+          description: ИД сервиса
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Пустой ответ
+  /services/image/download/{serviceId}:
+    get:
+      tags:
+        - SERVICES
+      summary: Выгрузка в файл
+      operationId: downloadImageByServiceId
+      parameters:
+        - name: serviceId
+          description: ИД сервиса
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Файл
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
   /ref/bannerTypes:
     get:
       summary: Выборка списка типов баннеров
@@ -352,14 +424,14 @@ components:
           format: int64
           description: Идентификатор
           example: 1
-        confirmed:
-          type: boolean
-          description: Подтверждение
-          example: true
-        moderated:
-          type: string
-          description: Модерация
-          example: true
+#        confirmed:
+#          type: boolean
+#          description: Подтверждение
+#          example: true
+#        moderated:
+#          type: string
+#          description: Модерация
+#          example: true
         price:
           type: integer
           format: int32

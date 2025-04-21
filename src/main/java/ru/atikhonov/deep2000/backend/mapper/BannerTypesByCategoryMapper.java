@@ -46,9 +46,9 @@ public class BannerTypesByCategoryMapper {
         CoreUtil.patch(dto, result);
 
         if (dto.getCatergoryId() != null) {
-            Optional<BannerCatergory> BannerCatergory = bannerCategoryRepository.findById(dto.getCatergoryId());
-            if (BannerCatergory.isPresent()) {
-                result.setCatergory(BannerCatergory.get());
+            Optional<BannerCatergory> bannerCatergory = bannerCategoryRepository.findById(dto.getCatergoryId());
+            if (bannerCatergory.isPresent()) {
+                result.setCatergory(bannerCatergory.get());
             }
         } else {
             result.setCatergory(null);

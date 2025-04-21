@@ -209,3 +209,21 @@ databaseChangeLog:
         LEFT JOIN banner_types_by_catergory cat_place on cat_place.id = cat_place_id
         LEFT JOIN banner_types_by_catergory cat_technology on cat_technology.id = cat_technology_id
         WHERE NOT EXISTS (SELECT ID FROM service s1 WHERE s1.prev_id = s.id);
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-07-update service table
+      author: Arkadiy.Tikhonov
+      sql:
+        UPDATE service set description = name || ' (Описание)' ;
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-08-update service table
+      author: Arkadiy.Tikhonov
+      sql:
+        UPDATE service set name = 'Услуга 2-1' , description =  'Услуга 2-1 (Описание)' ;
+
+  - changeSet:
+      id: deep2000-demo-2025-04-19-09-update service table
+      author: Arkadiy.Tikhonov
+      sql:
+        UPDATE service set name = 'Услуга ' || id , description =  'Описание '  || id ;
